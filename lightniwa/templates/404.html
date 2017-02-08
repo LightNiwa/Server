@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block head %}
+    <title>{% block title %}404 Not Found!{% endblock %}</title>
+{% endblock %}
+{% block body %}
+<body>
+    <div style="text-align: center;margin-top: 10%">
+        <img src="/static/image/404-{{ range(1, 3) | random }}.png">
+        <p style="font-size: 32px;">404 Not Found!</p>
+    </div>
+</body>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block body %}
+<body>
+<div class="blog mdl-layout mdl-js-layout has-drawer is-upgraded layout-transparent mdl-layout mdl-js-layout ">
+    <header class="mdl-layout__header mdl-layout__header--transparent">
+        <div class="mdl-layout__header-row ">
+            <!-- Title -->
+            <span class="mdl-layout-title">Welcome</span>
+            <!-- Add spacer, to align navigation to the right -->
+            <div class="mdl-layout-spacer"></div>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="">help</a>
+                <a class="mdl-navigation__link" href="">about</a>
+            </nav>
+        </div>
+    </header>
+    <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Home</span>
+        <nav class="mdl-navigation">
+            <a class="mdl-navigation__link" href="">TypeMoon</a>
+            <a class="mdl-navigation__link" href="">P.A.Works</a>
+            <a class="mdl-navigation__link" href="">Kyoto Animation</a>
+            <a class="mdl-navigation__link" href="">Kancolle</a>
+        </nav>
+    </div>
+    <main class="mdl-layout__content">
+        <div class="blog__posts mdl-grid">
+            {% for article in articles %}
+            {% if loop.index == 1 %}
+            <div class="mdl-card coffee-pic mdl-cell mdl-cell--8-col">
+                <div class="mdl-card__media mdl-color-text--grey-50"
+                     style="background-image: url({{ article.Article.cover }});">
+                    <h3><a href="/article/{{ article.Article.id }}">{{ article.Article.title }}</a></h3>
+                </div>
+                <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+                    <img src="{{ article.User.avatar }}" class="author_avatar">
+                    <div>
+                        <strong>{{ article.User.username }}</strong>
+                        <span>{{ article.Article.create_time|datetime('yy-MM-dd') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                <button class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent">
+                    <i class="material-icons mdl-color-text--white" role="presentation">add</i>
+                    <span class="visuallyhidden">add</span>
+                </button>
+                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                    <img src="/static/image/logo.png">
+                    <a href="/static/LightNiwa_v0.8.2_build20151208_beta.apk"> </a>
+                    +1,337
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <div>
+                        <strong>轻庭</strong>
+                    </div>
+                    <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="menubtn">
+                        <li class="mdl-menu__item">About</li>
+                        <li class="mdl-menu__item">Message</li>
+                        <li class="mdl-menu__item">Favorite</li>
+                        <li class="mdl-menu__item">Search</li>
+                    </ul>
+                    <button id="menubtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                        <i class="material-icons" role="presentation">more_vert</i>
+                        <span class="visuallyhidden">show menu</span>
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div class="mdl-card on-the-road-again mdl-cell mdl-cell--12-col">
+                <div class="mdl-card__media mdl-color-text--grey-50"
+                     style="background-image: url({{ article.Article.cover }});">
+                    <h3><a href="/article/{{ article.Article.id }}">{{ article.Article.title }}</a></h3>
+                </div>
+                <div class="mdl-color-text--grey-600 mdl-card__supporting-text">
+                    {{ article.Article.content|striptags|truncate(200) }}
+                </div>
+                <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+                    <img src="{{ article.User.avatar }}" class="author_avatar">
+                    <div>
+                        <strong>{{ article.author }}</strong>
+                        <span>{{ article.Article.create_time|datetime('yy-MM-dd') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            <nav class="nav mdl-cell mdl-cell--12-col" hidden>
+                <div class="section-spacer"></div>
+                <a href="/" class="nav__button" title="show more">
+                    More
+                    <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                        <i class="material-icons" role="presentation">arrow_forward</i>
+                    </button>
+                </a>
+            </nav>
+        </div>
+        <footer class="mdl-mini-footer">
+            <div class="mdl-mini-footer--left-section">
+                <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter"
+                        onclick="location.href='https://twitter.com/ltypeme';">
+                    <span class="visuallyhidden">Twitter</span>
+                </button>
+                <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger"
+                        onclick="location.href='https://www.facebook.com/profile.php?id=100004597908288';">
+                    <span class="visuallyhidden">Facebook</span>
+                </button>
+                <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus"
+                        onclick="location.href='https://plus.google.com/u/0/102831907173727129084';">
+                    <span class="visuallyhidden">Google Plus</span>
+                </button>
+            </div>
+            <div class="mdl-mini-footer--right-section" hidden>
+                <button class="mdl-mini-footer--social-btn social-btn__share">
+                    <i class="material-icons" role="presentation">share</i>
+                    <span class="visuallyhidden">share</span>
+                </button>
+            </div>
+        </footer>
+        {% block foot %}
+        {{ super() }}
+        {% endblock %}
+    </main>
+    <div class="mdl-layout__obfuscator"></div>
+</div>
+</body>
+{% endblock %}

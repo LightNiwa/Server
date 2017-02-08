@@ -1,0 +1,90 @@
+{% extends 'layout.html' %}
+{%  block body %}
+<body>
+<div class="blog mdl-layout mdl-js-layout has-drawer is-upgraded layout-transparent mdl-layout mdl-js-layout ">
+    <header class="mdl-layout__header mdl-layout__header--transparent">
+        <div class="mdl-layout__header-row ">
+            <!-- Title -->
+            <span class="mdl-layout-title">Welcome</span>
+            <!-- Add spacer, to align navigation to the right -->
+            <div class="mdl-layout-spacer"></div>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="">help</a>
+                <a class="mdl-navigation__link" href="">about</a>
+            </nav>
+        </div>
+    </header>
+    <main class="mdl-layout__content">
+        <div class="blog__posts mdl-grid">
+            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                    <input name="bookname"  title="123" placeholder="a book name or author"/>
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <input type="button" value="next >">
+                </div>
+            </div>
+            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                    <select>
+                        <option value="a book">a book</option>
+                    </select>
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <input type="button" value="next >">
+                </div>
+            </div>
+            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                    <select>
+                        <option value="a volume">a volume</option>
+                    </select>
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <input type="button" value="edit >"> <input type="button" value="new >">
+                </div>
+            </div>
+            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                    <img src="https://ltype.me/avatar" width="100px" height="100px"/>(volume cover)
+                    <input type="file"/>
+                    <input type="text" placeholder="volume name"/>
+                    <input type="text" placeholder="volume desc"/>
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <input type="button" value="next >">
+                </div>
+            </div>
+            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                    <ul>
+                        <li>chapter 1</li>
+                        <li>chapter 2</li>
+                        <li>chapter 3</li>
+                        <li>a new chapter name</li>
+                    </ul>
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <input type="button" value="next >">
+                </div>
+            </div>
+            <div class="mdl-card coffee-pic mdl-cell mdl-cell--8-col">
+                <div class="mdl-card__media mdl-color-text--grey-50">
+                </div>
+                <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+                </div>
+            </div>
+            <div class="mdl-card coffee-pic mdl-cell mdl-cell--12-col">
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    <input type="text" placeholder="chapter name"> <input type="text" placeholder="chapter desc"/>
+                    <textarea placeholder="chapter content" minlength="30"></textarea>
+                    <input type="file">(image of content)
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="mdl-layout__obfuscator"></div>
+</div>
+</body>
+{% endblock %}
