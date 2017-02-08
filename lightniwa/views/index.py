@@ -4,7 +4,6 @@ from random import randint
 from flask import Blueprint
 from flask import render_template
 from flask import send_from_directory
-from pip.cmdoptions import no_cache
 
 from database import Article, User, db_session
 
