@@ -1,11 +1,6 @@
 Babel==2.3.4
 beautifulsoup4==4.5.0
 click==6.6
-Django==1.9.8
-django-bower==5.1.0
-django-pipeline==1.6.8
-django-sslserver==0.19
-django-tinymce==2.3.0
 Flask==0.11.1
 Flask-Admin==1.4.2
 Flask-Assets==0.12

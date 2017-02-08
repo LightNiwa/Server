@@ -1,5 +1,7 @@
 ### Introduction:
->     [https:ltype.me](A Website of LightNiwa)
+>   [https:ltype.me](A Website of LightNiwa)
 
 ### Install requirements:
->    pip install -r requirements.txt
+>   pip install -r requirements.txt
+>   npm install material-design-lite --save //lightniwa
+>   uwsgi --ini uwsgi.ini
