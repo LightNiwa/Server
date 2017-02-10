@@ -4,4 +4,6 @@
 ### Install requirements:
 >   pip install -r requirements.txt
 >   npm install material-design-lite --save //lightniwa
->   uwsgi --ini uwsgi.ini
+
+### Start up:
+>    uwsgi --py-autoreload 1 --ini uwsgi.ini

@@ -10,6 +10,7 @@ app.config.from_object('config')
 from babel import dates
 from database import db_session, Article, Book, Volume, Chapter, User, Anime
 from lightniwa.admin.index import AdminIndex
+from lightniwa.admin.theworld import TheWorld
 from lightniwa.admin.moe import MoeView
 
 assets = Environment(app)
@@ -67,6 +68,7 @@ admin.add_view(AuthModelView(Book, db_session, endpoint='book'))
 admin.add_view(AuthModelView(Volume, db_session, endpoint='volume'))
 admin.add_view(AuthModelView(Chapter, db_session, endpoint='chapter'))
 admin.add_view(AuthModelView(User, db_session, endpoint='user'))
+admin.add_view(TheWorld(name='TheWorld', endpoint='theworld'))
 # admin.add_view(MoeView(name='Moe', endpoint='moe'))
 
 from lightniwa.views import index

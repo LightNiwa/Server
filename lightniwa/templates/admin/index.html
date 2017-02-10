@@ -4,8 +4,8 @@
     <div class="row-fluid">
         <div>
             {% if current_user.is_authenticated %}
-                <h1>Welcome {{ current_user.username }}!</h1>
                 <img src="https://ltype.me/sign"/>
+                <h3>Welcome {{ current_user.username }}!</h3>
             {% else %}
                 <form method="POST" action="">
                     {{ form.hidden_tag() if form.hidden_tag }}

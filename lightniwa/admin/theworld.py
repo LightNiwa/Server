@@ -1,35 +1,22 @@
 import os
-
+import flask_login as login
 from flask import make_response
 from flask import request
 from flask import url_for
 from flask_admin import BaseView, expose
 from lightniwa import app
-
-from config import ALLOWED_EXTENSIONS
 from lightniwa.admin.CKEditorForm import CKEditorForm
 
 
-class MoeView(BaseView):
+class TheWorld(BaseView):
     @expose('/')
     def index(self):
         form = CKEditorForm()
-        return self.render('admin/moe/index.html', form=form)
+        return self.render('admin/theworld/index.html', form=form)
 
-    @expose('/note')
-    def note(self):
-        return self.render('admin/moe/note.html')
-
-    @expose('/post', methods=['POST'])
-    def post(self):
-        print('post')
-        name = request.form.get('name')
-        print(name)
-        desc = request.form.get('desc')
-        print(desc)
-        editor = request.form.get('editor')
-        print(editor)
-        return self.render('admin/moe/index.html')
+    @expose('/publish')
+    def publish(self):
+        return
 
     @expose('/ckupload/', methods=['POST'])
     def upload(self):
@@ -69,7 +56,5 @@ class MoeView(BaseView):
         response.headers["Content-Type"] = "text/html"
         return response
 
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    def is_accessible(self):
+        return login.current_user.is_authenticated
