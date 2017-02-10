@@ -2,7 +2,7 @@
 {%  block body %}
 <script src="https://cdn.ckeditor.com/4.5.11/standard/ckeditor.js"></script>
 <body>
-<div class="blog mdl-layout mdl-js-layout has-drawer is-upgraded layout-transparent mdl-layout mdl-js-layout ">
+<div class="blog blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
     <header class="mdl-layout__header mdl-layout__header--transparent">
         <div class="mdl-layout__header-row ">
             <!-- Title -->
@@ -16,18 +16,26 @@
             </nav>
         </div>
     </header>
+    <div class="back">
+        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="/" title="go back"
+           role="button">
+            <i class="material-icons" role="presentation">arrow_back</i>
+        </a>
+    </div>
     <main class="mdl-layout__content">
+        <form>
         <div class="blog__posts mdl-grid">
             <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--8-col-desktop">
 {#                <div class="mdl-card__supporting-text meta meta--fill mdl-color--white mdl-color-text--grey-600">#}
 {#                    <input id="title" placeholder="type a title"/>#}
 {#                </div>#}
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="margin: 16px;width: auto">
-                    <input class="mdl-textfield__input" type="text" id="title">
+                    {{ form.title(class='mdl-textfield__input', type='text', id="title") }}
                     <label class="mdl-textfield__label" for="title">Title...</label>
                 </div>
                 <div class="mdl-textfield mdl-js-textfield" style="margin: 16px;width: 30%">
                     <input class="mdl-textfield__input" type="text" id="tag">
+                    {{ form.tags(class='mdl-textfield__input', type='text', id="tags", hidden='true') }}
                     <label class="mdl-textfield__label" for="tag">Tag...</label>
                 </div>
             </div>
@@ -37,27 +45,46 @@
                 </div>
             </div>
             <div class="mdl-card something-else mdl-cell mdl-cell--12-col mdl-cell--12-col-desktop">
-                <form method="post">
-                    <div class="mdl-card__supporting-text mdl-color--white mdl-color-text--grey-600">
-                        {{ form.editor(class='ckeditor') }}
-                        <script type="text/javascript">
-                            CKEDITOR.replace("editor", {
-                                width : '100%',
-                                height : '600px',
-                                filebrowserUploadUrl: '/admin/theworld/ckupload/',
-                                filebrowserImageUploadUrl: '/admin/theworld/ckupload/'
-                            });
-                        </script>
-                    </div>
-                    <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
-                        Have you seen Tiamat's comet.
-                        {{ form.done(class="mdl-button mdl-js-button mdl-js-ripple-effect") }}
-                    </div>
-                </form>
+                <div class="mdl-card__supporting-text mdl-color--white mdl-color-text--grey-600">
+                    {{ form.editor(class='ckeditor') }}
+                    <script type="text/javascript">
+                        CKEDITOR.replace("editor", {
+                            width : '100%',
+                            height : '600px',
+                            filebrowserUploadUrl: '/admin/theworld/ckupload/',
+                            filebrowserImageUploadUrl: '/admin/theworld/ckupload/'
+                        });
+                    </script>
+                </div>
+                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                    Have you seen Tiamat's comet.
+                    {{ form.done(class="mdl-button mdl-js-button mdl-js-ripple-effect") }}
+                </div>
             </div>
         </div>
+        </form>
     </main>
     <div class="mdl-layout__obfuscator"></div>
 </div>
 </body>
+{% endblock %}
+{% block foot %}
+{{ super() }}
+<script>
+    var frm = $('form');
+    frm.on("submit", function (ev) {
+        ev.preventDefault();
+        for (instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+        $.ajax({
+            type: "post",
+            url: "/admin/theworld/post",
+            data: frm.serialize(),
+            success: function (data) {
+
+            }
+        });
+    });
+</script>
 {% endblock %}

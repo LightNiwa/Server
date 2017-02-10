@@ -1,9 +1,13 @@
 import os
 import flask_login as login
+import time
 from flask import make_response
 from flask import request
 from flask import url_for
+from flask import json, request
 from flask_admin import BaseView, expose
+
+from database import db_session, Article
 from lightniwa import app
 from lightniwa.admin.CKEditorForm import CKEditorForm
 
@@ -14,9 +18,20 @@ class TheWorld(BaseView):
         form = CKEditorForm()
         return self.render('admin/theworld/index.html', form=form)
 
-    @expose('/publish')
-    def publish(self):
-        return
+    @expose('/post', methods=['POST'])
+    def post(self):
+        title = request.form.get('title')
+        cover = request.form.get('cover')
+        tags = request.form.get('tags')
+        editor = request.form.get('editor')
+        a = Article(title=title, content=editor)
+        a.cover = cover
+        a.tags = tags
+        a.create_user_id = login.current_user.id
+        a.create_time = int(time.time())
+        db_session.add(a)
+        db_session.commit()
+        return json.dumps("", ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
     @expose('/ckupload/', methods=['POST'])
     def upload(self):

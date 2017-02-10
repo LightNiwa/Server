@@ -79,7 +79,7 @@
                 <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
                     <img src="{{ article.User.avatar }}" class="author_avatar">
                     <div>
-                        <strong>{{ article.author }}</strong>
+                        <strong>{{ article.User.username }}</strong>
                         <span>{{ article.Article.create_time|datetime('yy-MM-dd') }}</span>
                     </div>
                 </div>

@@ -5,5 +5,6 @@ from flaskckeditor import CKEditor
 
 class CKEditorForm(Form, CKEditor):
     title = StringField()
+    tags = StringField()
     editor = TextAreaField()
     done = SubmitField('done')

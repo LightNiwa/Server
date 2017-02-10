@@ -111,7 +111,7 @@ def chapter_get(volume_id):
     return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
 
-# @login_required
+@login_required
 @mod.route('/chapter/<int:volume_id>', methods=['POST'])
 def chapter_post(volume_id):
     name = request.form.get('name')
@@ -125,6 +125,7 @@ def chapter_post(volume_id):
     return json.dumps({}, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
 
+@login_required
 @mod.route('/chapter/<int:chapter_id>', methods=['PATCH'])
 def chapter_patch(chapter_id):
     data = request.json

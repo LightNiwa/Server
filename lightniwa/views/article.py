@@ -9,6 +9,8 @@ mod = Blueprint('article', __name__, url_prefix='/article')
 @mod.route('/<int:article_id>')
 def index(article_id):
     article = Article.query.get(article_id)
+    if not article:
+        return render_template('404.html'), 404
     author = User.query.get(article.create_user_id)
     return render_template('article.html', article=article, author=author)
 

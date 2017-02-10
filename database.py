@@ -29,8 +29,8 @@ class Article(Model):
     category_id = Column(Integer)
     create_user_id = Column(Integer)
     create_time = Column(Integer)
-    view = Column(Integer)
-    like = Column(Integer)
+    view = Column(Integer, default=0)
+    like = Column(Integer, default=0)
 
     def __init__(self, title, content):
         self.title = title
