@@ -19,7 +19,7 @@ def index():
 
 @mod.route('avatar')
 def avatar():
-    path = os.path.abspath(os.path.join('assets/flowersspringimg/'))
+    path = os.path.abspath(os.path.join('lightniwa/static/image/flowersspringimg/'))
     files = os.listdir(path)
     position = randint(0, len(files))
     return send_from_directory(path, files[position])
@@ -27,7 +27,7 @@ def avatar():
 
 @mod.route('sign')
 def sign():
-    path = os.path.abspath(os.path.join('assets/flowersspringev/'))
+    path = os.path.abspath(os.path.join('lightniwa/static/image/flowersspringev/'))
     files = os.listdir(path)
     position = randint(0, len(files))
     return send_from_directory(path, files[position])
