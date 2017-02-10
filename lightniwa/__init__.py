@@ -67,7 +67,7 @@ admin.add_view(AuthModelView(Book, db_session, endpoint='book'))
 admin.add_view(AuthModelView(Volume, db_session, endpoint='volume'))
 admin.add_view(AuthModelView(Chapter, db_session, endpoint='chapter'))
 admin.add_view(AuthModelView(User, db_session, endpoint='user'))
-admin.add_view(MoeView(name='Moe', endpoint='moe'))
+# admin.add_view(MoeView(name='Moe', endpoint='moe'))
 
 from lightniwa.views import index
 from lightniwa.views import article

@@ -25,7 +25,7 @@ class Article(Model):
     title = Column(String(255))
     cover = Column(String(255))
     content = Column(String())
-    tag = Column(String(255))
+    tags = Column(String(255))
     category_id = Column(Integer)
     create_user_id = Column(Integer)
     create_time = Column(Integer)
@@ -158,3 +158,9 @@ class Count(Model):
     last_time = Column(Integer)
     frequency = Column(Integer)
     total = Column(Integer)
+
+
+class Tag(Model):
+    __tablename__ = 'tag'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
