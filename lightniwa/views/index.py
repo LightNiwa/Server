@@ -12,9 +12,17 @@ mod = Blueprint('/', __name__, url_prefix='/')
 
 @mod.route('/')
 def index():
-    articles = db_session.query(Article, User)\
+    articles = db_session.query(Article, User) \
         .join(User, Article.create_user_id == User.id).order_by(Article.id.desc())
     return render_template('index.html', articles=articles)
+
+
+@mod.route('tag/<int:tag_id>')
+def articles(tag_id):
+    print(tag_id)
+    articles = db_session.query(Article, User).filter(Article.tags.like('%' + str(tag_id) + '%'))\
+        .join(User, Article.create_user_id == User.id).order_by(Article.id.desc())
+    return render_template('articles.html', articles=articles)
 
 
 @mod.route('avatar')

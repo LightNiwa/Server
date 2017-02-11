@@ -30,16 +30,15 @@ class TheWorld(BaseView):
         cover = request.files['cover']
         filename = hashlib.md5((str(time.time()) + cover.filename).encode()).hexdigest()\
                    + os.path.splitext(cover.filename)[1]
-        path = os.path.join(app.root_path + app.config['UPLOAD_FOLDER'], filename)
         title = request.form.get('title')
         tags = request.form.get('tags')
         content = request.form.get('content')
         a = Article(title=title, content=content)
-        a.cover = path
+        a.cover = app.config['UPLOAD_FOLDER'] + filename
         a.tags = tags
         a.create_user_id = login.current_user.id
         a.create_time = int(time.time())
-        cover.save(path)
+        cover.save(app.root_path + a.cover)
         db_session.add(a)
         db_session.commit()
         return json.dumps(a.to_json(), ensure_ascii=False), 200, {'ContentType': 'application/json'}
