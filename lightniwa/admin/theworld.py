@@ -40,8 +40,8 @@ class TheWorld(BaseView):
         a.create_user_id = login.current_user.id
         a.create_time = int(time.time())
         cover.save(path)
-        # db_session.add(a)
-        # db_session.commit()
+        db_session.add(a)
+        db_session.commit()
         return json.dumps(a.to_json(), ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
     @expose('/ckupload/', methods=['POST'])
