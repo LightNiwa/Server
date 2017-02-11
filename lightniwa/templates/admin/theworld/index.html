@@ -1,90 +1,172 @@
 {% extends 'layout.html' %}
-{%  block body %}
-<script src="https://cdn.ckeditor.com/4.5.11/standard/ckeditor.js"></script>
-<body>
-<div class="blog blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
-    <header class="mdl-layout__header mdl-layout__header--transparent">
-        <div class="mdl-layout__header-row ">
-            <!-- Title -->
-            <span class="mdl-layout-title">Welcome</span>
-            <!-- Add spacer, to align navigation to the right -->
-            <div class="mdl-layout-spacer"></div>
-            <!-- Navigation -->
-            <nav class="mdl-navigation">
-                <a class="mdl-navigation__link" href="">help</a>
-                <a class="mdl-navigation__link" href="">about</a>
-            </nav>
+{% block body %}
+    <script src="https://cdn.ckeditor.com/4.5.11/standard/ckeditor.js"></script>
+    <body>
+    <div class="blog blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
+        <header class="mdl-layout__header mdl-layout__header--transparent">
+            <div class="mdl-layout__header-row ">
+                <!-- Title -->
+                <span class="mdl-layout-title">Welcome</span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation -->
+                <nav class="mdl-navigation">
+                    <a class="mdl-navigation__link" href="">help</a>
+                    <a class="mdl-navigation__link" href="">about</a>
+                </nav>
+            </div>
+        </header>
+        <div class="back">
+            <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="/" title="go back"
+               role="button">
+                <i class="material-icons" role="presentation">arrow_back</i>
+            </a>
         </div>
-    </header>
-    <div class="back">
-        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="/" title="go back"
-           role="button">
-            <i class="material-icons" role="presentation">arrow_back</i>
-        </a>
+        <main class="mdl-layout__content">
+            <form enctype="multipart/form-data">
+                <div class="blog__posts mdl-grid">
+                    <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--8-col-desktop">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
+                             style="margin: 16px;width: auto">
+                            {{ form.title(class='mdl-textfield__input', type='text', id="title") }}
+                            <label class="mdl-textfield__label" for="title">Title...</label>
+                        </div>
+                        <div style="margin: 16px;width: auto" id="tag_layout">
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield" style="margin: 16px;width: 30%">
+                            <input class="mdl-textfield__input" type="text" id="tag" list="tags_data">
+                            {{ form.tags(class='mdl-textfield__input', type='text', hidden='true') }}
+                            <label class="mdl-textfield__label" for="tag">Tag...</label>
+                            <datalist id="tags_data"></datalist>
+                        </div>
+                    </div>
+                    <div class="mdl-card something-else mdl-cell mdl-cell--4-col mdl-cell--4-col-desktop">
+                        <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+                            {{ form.cover(hidden="true") }}
+                        </div>
+                    </div>
+                    <div class="mdl-card something-else mdl-cell mdl-cell--12-col mdl-cell--12-col-desktop">
+                        <div class="mdl-card__supporting-text mdl-color--white mdl-color-text--grey-600">
+                            {{ form.content(class='ckeditor') }}
+                            <script type="text/javascript">
+                                CKEDITOR.replace("content", {
+                                    width: '100%',
+                                    height: '600px',
+                                    filebrowserUploadUrl: '/admin/theworld/ckupload/',
+                                    filebrowserImageUploadUrl: '/admin/theworld/ckupload/'
+                                });
+                            </script>
+                        </div>
+                        <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                            Have you seen Tiamat's comet.
+                            {{ form.done(class="mdl-button mdl-js-button mdl-js-ripple-effect") }}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
+        <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
+            <div class="mdl-snackbar__text"></div>
+            <button class="mdl-snackbar__action" type="button"></button>
+        </div>
+        <div class="mdl-layout__obfuscator"></div>
     </div>
-    <main class="mdl-layout__content">
-        <form>
-        <div class="blog__posts mdl-grid">
-            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--8-col-desktop">
-{#                <div class="mdl-card__supporting-text meta meta--fill mdl-color--white mdl-color-text--grey-600">#}
-{#                    <input id="title" placeholder="type a title"/>#}
-{#                </div>#}
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="margin: 16px;width: auto">
-                    {{ form.title(class='mdl-textfield__input', type='text', id="title") }}
-                    <label class="mdl-textfield__label" for="title">Title...</label>
-                </div>
-                <div class="mdl-textfield mdl-js-textfield" style="margin: 16px;width: 30%">
-                    <input class="mdl-textfield__input" type="text" id="tag">
-                    {{ form.tags(class='mdl-textfield__input', type='text', id="tags", hidden='true') }}
-                    <label class="mdl-textfield__label" for="tag">Tag...</label>
-                </div>
-            </div>
-            <div class="mdl-card something-else mdl-cell mdl-cell--4-col mdl-cell--4-col-desktop">
-                <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
-{#                    <img src="/avatar" />#}
-                </div>
-            </div>
-            <div class="mdl-card something-else mdl-cell mdl-cell--12-col mdl-cell--12-col-desktop">
-                <div class="mdl-card__supporting-text mdl-color--white mdl-color-text--grey-600">
-                    {{ form.editor(class='ckeditor') }}
-                    <script type="text/javascript">
-                        CKEDITOR.replace("editor", {
-                            width : '100%',
-                            height : '600px',
-                            filebrowserUploadUrl: '/admin/theworld/ckupload/',
-                            filebrowserImageUploadUrl: '/admin/theworld/ckupload/'
-                        });
-                    </script>
-                </div>
-                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
-                    Have you seen Tiamat's comet.
-                    {{ form.done(class="mdl-button mdl-js-button mdl-js-ripple-effect") }}
-                </div>
-            </div>
-        </div>
-        </form>
-    </main>
-    <div class="mdl-layout__obfuscator"></div>
-</div>
-</body>
+    </body>
 {% endblock %}
 {% block foot %}
-{{ super() }}
-<script>
-    var frm = $('form');
-    frm.on("submit", function (ev) {
-        ev.preventDefault();
-        for (instance in CKEDITOR.instances) {
-            CKEDITOR.instances[instance].updateElement();
-        }
-        $.ajax({
-            type: "post",
-            url: "/admin/theworld/post",
-            data: frm.serialize(),
-            success: function (data) {
+    {{ super() }}
+    <script>
+        var frm = $('form');
+        var cover = $('input[name=cover]');
+        var tag = $('#tag');
+        var tags = $('#tags_data');
+        var tagIds = [];
+        var files;
 
+        tag.on('input', function () {
+            var text = $(this).val();
+            options = tags.find("option");
+            if (options.length == 0) bindTagDataList();
+            options.each(function () {
+                if ($(this).val() == text) {
+                    bindTagChip($(this).attr('data-value'), $(this).attr('value'));
+                    tag.val("");
+                } else {
+                    bindTagDataList();
+                }
+            });
+        });
+        frm.on("submit", function (ev) {
+            ev.preventDefault();
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+            $.ajax({
+                type: "post",
+                url: "/admin/theworld/post",
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                async: false,
+                success: function (data) {
+                    data = JSON.parse(data);
+                    var msg = {
+                        message: data['title'] + ' publish success!',
+                        timeout: 5000,
+                        actionHandler: function() {
+                            window.location.replace("/article/" + data['id']);
+                        },
+                        actionText: 'Go to->'
+                    };
+                    $('#snackbar')[0].MaterialSnackbar.showSnackbar(msg);
+                }
+            });
+        });
+
+        $('.mdl-card__media').on('click', function () {
+            cover[0].click();
+        });
+        cover.on('change', function () {
+            if (cover[0].files && cover[0].files[0]) {
+                files = cover[0].files;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    cover.parent().attr('style', 'background-image: url(' + e.target.result + ');');
+                    frm.cover = e.target.result;
+                };
+                reader.readAsDataURL(cover[0].files[0]);
             }
         });
-    });
-</script>
+
+        function bindTagChip(id, name) {
+            if ($.inArray(id, tagIds) == 0) return;
+            tagIds.push(id);
+            $('#tag_layout').append("<span class='mdl-chip mdl-chip--deletable' style='margin: 8px;'>" +
+                    "<span class='mdl-chip__text'>" + name + "</span>" +
+                    "<button type='button' class='mdl-chip__action'><i class='material-icons'>cancel</i></button>" +
+                    "</span>");
+            $('input[name=tags]').val(tagIds.join(','));
+            $('#tag_layout > span > button').on('click', function () {
+                $(this).parent().remove();
+                tagIds.splice($.inArray(id, tagIds), 1);
+            })
+        }
+
+        function bindTagDataList() {
+            $.ajax({
+                type: "get",
+                url: "/admin/theworld/tag/" + tag.val(),
+                success: function (data) {
+                    tags.empty();
+                    $.each(JSON.parse(data), function (i, item) {
+                        tags.append($('<option>', {
+                            'value': item.name,
+                            'data-value': item.id
+                        }));
+                    });
+                }
+            });
+        }
+    </script>
 {% endblock %}

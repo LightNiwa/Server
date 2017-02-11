@@ -1,3 +1,4 @@
+import hashlib
 import os
 import flask_login as login
 import time
@@ -8,7 +9,7 @@ from flask import json, request
 from flask_admin import BaseView, expose
 
 from database import db_session, Article
-from lightniwa import app
+from lightniwa import app, Tag
 from lightniwa.admin.CKEditorForm import CKEditorForm
 
 
@@ -18,20 +19,30 @@ class TheWorld(BaseView):
         form = CKEditorForm()
         return self.render('admin/theworld/index.html', form=form)
 
+    @expose('/tag/<string:tag_name>', methods=['GET'])
+    def tag(self, tag_name):
+        tags = Tag.query.filter(Tag.name.like('%' + tag_name + '%')).all()
+        resp = [tag.to_json() for tag in tags]
+        return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+
     @expose('/post', methods=['POST'])
     def post(self):
+        cover = request.files['cover']
+        filename = hashlib.md5((str(time.time()) + cover.filename).encode()).hexdigest()\
+                   + os.path.splitext(cover.filename)[1]
+        path = os.path.join(app.root_path + app.config['UPLOAD_FOLDER'], filename)
         title = request.form.get('title')
-        cover = request.form.get('cover')
         tags = request.form.get('tags')
-        editor = request.form.get('editor')
-        a = Article(title=title, content=editor)
-        a.cover = cover
+        content = request.form.get('content')
+        a = Article(title=title, content=content)
+        a.cover = path
         a.tags = tags
         a.create_user_id = login.current_user.id
         a.create_time = int(time.time())
-        db_session.add(a)
-        db_session.commit()
-        return json.dumps("", ensure_ascii=False), 200, {'ContentType': 'application/json'}
+        cover.save(path)
+        # db_session.add(a)
+        # db_session.commit()
+        return json.dumps(a.to_json(), ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
     @expose('/ckupload/', methods=['POST'])
     def upload(self):

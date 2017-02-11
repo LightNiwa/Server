@@ -164,3 +164,7 @@ class Tag(Model):
     __tablename__ = 'tag'
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
+
+    def to_json(self):
+        return dict(id=self.id,
+                    name=self.name,)
