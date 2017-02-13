@@ -1,31 +1,61 @@
 {% extends 'admin/master.html' %}
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="{{ url_for('static', filename='image/favicon.ico') }}" type="image/vnd.microsoft.icon">
+<link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}" type="image/vnd.microsoft.icon">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Material Design Lite">
+<link rel="apple-touch-icon-precomposed" href="{{ url_for('static', filename='image/favicon.ico') }}">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="{{ url_for('static', filename='image/favicon.ico') }}">
+<meta name="msapplication-TileColor" content="#3372DF">
+{% assets "css_base" %}
+    <link rel=stylesheet type=text/css href="{{ ASSET_URL }}">
+{% endassets %}
 {% block body %}
     {{ super() }}
     <div class="row-fluid">
-        <div>
-            {% if current_user.is_authenticated %}
-                <img src="https://ltype.me/sign"/>
-                <h3>Welcome {{ current_user.username }}!</h3>
-            {% else %}
-                <form method="POST" action="">
-                    {{ form.hidden_tag() if form.hidden_tag }}
-                    {% for f in form if f.type != 'CSRFTokenField' %}
-                        <div>
-                            {{ f.label }}
-                            {{ f }}
-                            {% if f.errors %}
-                                <ul>
-                                    {% for e in f.errors %}
-                                        <li>{{ e }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button class="btn" type="submit">Submit</button>
-                </form>
-                {{ link | safe }}
-            {% endif %}
-        </div>
+        {% if current_user.is_authenticated %}
+            <div>
+                <img src="https://ltype.me/sign" style="width: 100%;"/>
+                <h3 class="mdl-color-text--grey-50" style="text-align: right">Welcome {{ current_user.username }}!</h3>
+            </div>
+        {% else %}
+            <div class="blog blog--blogpost mdl-layout">
+                <main class="mdl-layout__content">
+                    <div class="blog__posts mdl-grid" style="text-align: center;">
+                        <form method="POST">
+                            <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--8-col-desktop" style="display: inline-block;">
+                                <div class="mdl-textfield" style="margin: 16px;">
+                                    <h3 style="text-align: center">Welcome & Login</h3>
+                                </div>
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
+                                     style="margin: 16px;">
+                                    <input class="mdl-textfield__input" type="text" id="username" name="username"/>
+                                    <label class="mdl-textfield__label" for="title">Username</label>
+                                </div>
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
+                                     style="margin: 16px;">
+                                    <input class="mdl-textfield__input" type="password" id="password" name="password"/>
+                                    <label class="mdl-textfield__label" for="tag">Password</label>
+                                </div>
+                                <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+                                    <a href="/">ltype.me</a>
+                                    <button class="mdl-button mdl-js-button mdl-js-ripple-effect" type="submit" name="done">Done</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        {% endif %}
     </div>
 {% endblock body %}
+{% assets "js_base" %}
+    <script type=text/javascript src="{{ ASSET_URL }}"></script>
+    <script type=text/javascript src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+{% endassets %}
