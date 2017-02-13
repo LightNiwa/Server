@@ -16,18 +16,22 @@ class AdminIndex(AdminIndexView):
 
     @expose('/login/', methods=('GET', 'POST'))
     def login_view(self):
+        print('login')
         form = LoginForm(request.form)
+        msg = ''
         if helpers.validate_form_on_submit(form):
-            user = form.get_user()
-            print(user.username)
-            login.login_user(user)
+            try:
+                if form.validate_login():
+                    user = form.get_user()
+                    login.login_user(user)
+            except Exception:
+                msg = 'Invalid user or password'
+                pass
 
-        print(login.current_user.is_authenticated)
         if login.current_user.is_authenticated:
             return redirect(url_for('.index'))
-        link = '<p>Don\'t have an account? <a href="' + url_for('.register_view') + '">Click here to register.</a></p>'
+        self._template_args['msg'] = msg
         self._template_args['form'] = form
-        self._template_args['link'] = link
         return super(AdminIndex, self).index()
 
     @expose('/register/', methods=('GET', 'POST'))
@@ -61,17 +65,13 @@ class LoginForm(form.Form):
     username = fields.StringField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
 
-    def validate_login(self, field):
+    def validate_login(self):
         user = self.get_user()
 
-        if user is None:
-            raise validators.ValidationError('Invalid user')
-
-        # we're comparing the plaintext pw with the the hash from the db
-        if not check_password_hash(user.password, self.password.data):
-            # to compare plain text passwords use
-            # if user.password != self.password.data:
-            raise validators.ValidationError('Invalid password')
+        if user is None or not check_password_hash(user.password, self.password.data):
+            raise validators.ValidationError('Invalid user or password')
+        else:
+            return True
 
     def get_user(self):
         return db_session.query(User).filter_by(username=self.username.data).first()
