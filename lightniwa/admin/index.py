@@ -45,8 +45,8 @@ class AdminIndex(AdminIndexView):
             # remove to use plain text:
             user.password = generate_password_hash(form.password.data)
 
-            db_session.add(user)
-            db_session.commit()
+            # db_session.add(user)
+            # db_session.commit()
 
             login.login_user(user)
             return redirect(url_for('.index'))
