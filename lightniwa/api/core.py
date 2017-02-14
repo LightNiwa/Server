@@ -48,13 +48,13 @@ def search():
 @mod.route('/book/<int:book_id>')
 def book(book_id):
     version_code = request.args.get('version_code')
-    version_code = (version_code, 0)[not version_code]
+    version_code = int((version_code, 0)[not version_code])
     resp = None
     if version_code >= app.config['VERSION_CODE']:
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
         resp = b.to_json()
-        resp['volumes'] = volumes
+        resp['volumes'] = [v.to_json() for v in volumes]
     else:
         sql = 'SELECT b.id book_id, b.name book_name, b.author book_author, b.illustrator book_illustrator,' \
               ' b.publisher book_publisher, b.cover book_cover' \
@@ -246,7 +246,7 @@ def anime(month):
     return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
 
-@app.route('/cover/image/<file_dir>/<file_name>.jpg')
+@mod.route('/cover/image/<file_dir>/<file_name>.jpg')
 def cover(file_dir, file_name):
     key = 'cover/image/%s/%s.jpg' % (file_dir, file_name)
     # if not os.path.isfile(app.config['PRIVATE_PATH'] + '/' + key):
@@ -278,7 +278,7 @@ def cover(file_dir, file_name):
 # |--|--chapter_id.json
 # |--img
 # |--|--|md5('/cover/image/20120803/20120803215640_24363.jpg').jpg
-@app.route('/download/volume/<int:volume_id>')
+@mod.route('/download/volume/<int:volume_id>')
 def download_volume(volume_id):
     ip = request.remote_addr
     now = int(str(time.time()).split('.')[0])

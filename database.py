@@ -116,6 +116,7 @@ class Volume(Model):
                     book_id=self.book_id,
                     name=self.name,
                     index=self.index,
+                    header=self.index,
                     description=self.description,
                     update_time=self.update_time,
                     cover=self.cover,
