@@ -311,13 +311,12 @@ def download_volume(volume_id):
     result = db_session.query(Book, Volume).join(Volume, Volume.book_id == Book.id).filter(Volume.id == volume_id).first()
     if not result:
         return 404
-    print(result)
-    path = '/zip/%s/%s.zip' % (result.Book.id, volume_id)
-    if os.path.exists(app.config['PRIVATE_PATH'] + path):
+    path = 'zip/%s/%s.zip' % (result.Book.id, volume_id)
+    if os.path.exists(app.config['PRIVATE_PATH'] + '/' + path):
         q = Auth(app.config['QN_ACCESS_KEY'], app.config['QN_SECRET_KEY'])
         base_url = 'http://%s/%s' % (app.config['QN_BUCKET_DOMAIN'], path)
         private_url = q.private_download_url(base_url, expires=3600)
-        return redirect(url_for(private_url))
+        return redirect(private_url)
     else:
         if not os.path.isdir(os.path.dirname(app.config['PRIVATE_PATH'] + path)):
             os.makedirs(os.path.dirname(app.config['PRIVATE_PATH'] + path))
