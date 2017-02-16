@@ -50,7 +50,7 @@ def book(book_id):
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
     resp = {}
-    if version_code >= app.config['VERSION_CODE']:
+    if version_code > app.config['VERSION_CODE']:
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
         resp['book'] = b.to_json()
@@ -64,8 +64,25 @@ def book(book_id):
               ' FROM volume v WHERE v.book_id = %s'
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp['book'] = b.to_json()
-        resp['volumes'] = [v.to_json() for v in volumes]
+        resp['book'] = []
+        resp['volumes'] = []
+        book = {}
+        book['book_id'] = b.id
+        book['book_name'] = b.name
+        book['book_author'] = b.author
+        book['book_illustrator'] = b.illustrator
+        book['book_publisher'] = b.publisher
+        book['book_cover'] = b.cover
+        resp['book'].append(book)
+        for v in volumes:
+            item = {}
+            item['vol_id'] = v.id
+            item['book_id'] = v.book_id
+            item['vol_index'] = v.index
+            item['vol_name'] = v.name
+            item['vol_cover'] = v.cover
+            item['vol_description'] = v.description
+            resp['volumes'].append(item)
         # result = {'book': book, 'volumes': volumes}
     return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
