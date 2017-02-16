@@ -49,11 +49,11 @@ def search():
 def book(book_id):
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
-    resp = None
+    resp = {}
     if version_code >= app.config['VERSION_CODE']:
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp = b.to_json()
+        resp['book'] = b.to_json()
         resp['volumes'] = [v.to_json() for v in volumes]
     else:
         sql = 'SELECT b.id book_id, b.name book_name, b.author book_author, b.illustrator book_illustrator,' \
@@ -64,7 +64,7 @@ def book(book_id):
               ' FROM volume v WHERE v.book_id = %s'
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp = b.to_json()
+        resp['book'] = b.to_json()
         resp['volumes'] = [v.to_json() for v in volumes]
         # result = {'book': book, 'volumes': volumes}
     return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
@@ -160,6 +160,7 @@ def latest_update():
             item['book_illustrator'] = line.Book.illustrator
             resp.append(item)
         latest_update_cache = resp
+        latest_update_time = time.time()
     return json.dumps(latest_update_cache, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
 
