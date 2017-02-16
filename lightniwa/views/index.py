@@ -1,10 +1,11 @@
 import os
 from random import randint
 
-from flask import Blueprint
+from flask import Blueprint, request
 from flask import render_template
 from flask import send_from_directory
 
+from lightniwa import app
 from database import Article, User, db_session
 
 mod = Blueprint('/', __name__, url_prefix='/')
@@ -22,6 +23,12 @@ def articles(tag_id):
     articles = db_session.query(Article, User).filter(Article.tags.like('%' + str(tag_id) + '%'))\
         .join(User, Article.create_user_id == User.id).order_by(Article.id.desc())
     return render_template('articles.html', articles=articles)
+
+
+@mod.route('cover/<path:path>')
+def cover(path):
+    path = app.config['PRIVATE_PATH'] + request.path
+    return send_from_directory(os.path.dirname(path), os.path.basename(path))
 
 
 @mod.route('avatar')
