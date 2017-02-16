@@ -169,7 +169,7 @@ def popular():
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
     resp = []
-    if version_code >= app.config['VERSION_CODE']:
+    if version_code > app.config['VERSION_CODE']:
         sql = 'SELECT b.id, b.name, b.author, b.illustrator, b.publisher, b.cover, SUM(v.download) total' \
               ' FROM volume v' \
               ' LEFT JOIN book b ON b.id = v.book_id' \
@@ -195,10 +195,10 @@ def popular():
             item = {}
             item['book_id'] = line.Book.id
             item['book_name'] = line.Book.name
-            item['author'] = line.Book.id
-            item['illustrator'] = line.Book.id
-            item['publisher'] = line.Book.id
-            item['cover'] = line.Book.id
+            item['book_author'] = line.Book.author
+            item['book_illustrator'] = line.Book.illustrator
+            item['book_publisher'] = line.Book.publisher
+            item['book_cover'] = line.Book.cover
             item['total'] = int(line.total)
             resp.append(item)
     else:
@@ -215,10 +215,10 @@ def popular():
             item = {}
             item['book_id'] = line.Book.id
             item['book_name'] = line.Book.name
-            item['author'] = line.Book.id
-            item['illustrator'] = line.Book.id
-            item['publisher'] = line.Book.id
-            item['cover'] = line.Book.id
+            item['author'] = line.Book.author
+            item['illustrator'] = line.Book.illustrator
+            item['publisher'] = line.Book.publisher
+            item['cover'] = line.Book.cover
             item['volume_id'] = line.Volume.id
             item['volume_name'] = line.Volume.name
             item['volume_cover'] = line.Volume.cover
