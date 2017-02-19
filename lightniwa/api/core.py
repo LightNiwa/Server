@@ -19,11 +19,12 @@ from database import Article, User, db_session, engine, Book, Volume, Anime, Cou
 mod = Blueprint('api', __name__, url_prefix='/api/v1')
 
 
+@mod.route('/checkUpdate')
 @mod.route('/checkupdate')
 def version():
     resp = {}
     resp['versionCode'] = 18
-    resp['url'] = 'http://ltype.me/assets/LightNiwa_v0.8.2_build20151208_beta.apk'
+    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.3_build20160402_beta.apk'
     resp['message'] = '\n1.修复了一些BUG'
     return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
