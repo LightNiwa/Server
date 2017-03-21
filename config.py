@@ -15,7 +15,7 @@ API_HEADER = {
     'Connection': 'keep-alive'
 }
 
-SECRET_KEY = ''
+STATIC_URL = 'https://cdn.ltype.me/static/'
 
 DATABASE_URI = ''
 DATABASE_CONNECT_OPTIONS = {}

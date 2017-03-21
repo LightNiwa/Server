@@ -1,4 +1,7 @@
+from urllib.parse import urljoin
+
 from flask import Flask, render_template
+from flask import redirect
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_assets import Environment, Bundle
@@ -29,6 +32,15 @@ assets.init_app(app)
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html'), 404
+
+
+@app.endpoint('static')
+def static(filename):
+    static_url = app.config.get('STATIC_URL')
+    if static_url:
+        print(static_url)
+        return redirect(urljoin(static_url, filename))
+    return app.send_static_file(filename)
 
 
 @app.template_filter('datetime')
