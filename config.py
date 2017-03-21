@@ -18,6 +18,7 @@ API_HEADER = {
 FLASK_ASSETS_USE_CDN = True
 CDN_DOMAIN = 'cdn.ltype.me'
 CDN_HTTPS = True
+CDN_TIMESTAMP = False
 
 SECRET_KEY = ''
 
