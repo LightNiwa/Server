@@ -29,14 +29,14 @@
             {% for article in articles %}
                 <div class="mdl-card on-the-road-again mdl-cell mdl-cell--12-col">
                     <div class="mdl-card__media mdl-color-text--grey-50"
-                         style="background-image: url({{ article.Article.cover }});">
+                         style="background-image: url({{ url_for('static', filename=article.Article.cover) }});">
                         <h3><a href="/article/{{ article.Article.id }}">{{ article.Article.title }}</a></h3>
                     </div>
                     <div class="mdl-color-text--grey-600 mdl-card__supporting-text">
                         {{ article.Article.content|striptags|truncate(200) }}
                     </div>
                     <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-                        <img src="{{ article.User.avatar }}" class="author_avatar">
+                        <img src="{{ url_for('static', filename=article.User.avatar) }}" class="author_avatar">
                         <div>
                             <strong>{{ article.User.username }}</strong>
                             <span>{{ article.Article.create_time|datetime('MM-dd-yy') }}</span>

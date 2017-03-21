@@ -15,7 +15,11 @@ API_HEADER = {
     'Connection': 'keep-alive'
 }
 
-STATIC_URL = 'https://cdn.ltype.me/static/'
+FLASK_ASSETS_USE_CDN = True
+CDN_DOMAIN = 'cdn.ltype.me'
+CDN_HTTPS = True
+
+SECRET_KEY = ''
 
 DATABASE_URI = ''
 DATABASE_CONNECT_OPTIONS = {}

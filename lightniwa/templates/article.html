@@ -15,11 +15,11 @@
         <div class="blog__posts mdl-grid">
             <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
                 <div class="mdl-card__media mdl-color-text--grey-50"
-                     style="background-image: url({{ article.cover }});">
+                    style="background-image: url({{ url_for('static', filename=article.cover) }});">
                     <h3>{{ article.title }}</h3>
                 </div>
                 <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-                    <img src="{{ author.avatar }}" class="author_avatar">
+                    <img src="{{ url_for('static', filename=author.avatar) }}" class="author_avatar">
                     <div>
                         <strong>{{ author.username }}</strong>
                         <span>{{ article.create_time|datetime('MM-dd-yy') }}</span>
@@ -53,7 +53,7 @@
                     </form>
                     <div class="comment mdl-color-text--grey-700">
                         <header class="comment__header">
-                            <img src="{{ author.avatar }}" class="comment__avatar">
+                            <img src="{{ url_for('static', filename=author.avatar) }}" class="comment__avatar">
                             <div class="comment__author">
                                 <strong>{{ author.username }}</strong>
                                 <span>2 days ago</span>
@@ -79,7 +79,7 @@
                         <div class="comment__answers" style="display: none">
                             <div class="comment">
                                 <header class="comment__header">
-                                    <img src="{{ author.avatar }}" class="comment__avatar">
+                                    <img src="{{ url_for('static', filename=author.avatar) }}" class="comment__avatar">
                                     <div class="comment__author">
                                         <strong>{{ author.username }}</strong>
                                         <span>2 days ago</span>
