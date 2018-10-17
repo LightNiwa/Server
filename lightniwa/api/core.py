@@ -429,8 +429,8 @@ def download_volume(volume_id):
         except:
             zf.close()
             os.remove(zf.filename)
-    print(os.path.dirname(zf.filename) + os.path.basename('/%s.zip' % volume_id))
-    return send_from_directory(os.path.dirname(zf.filename), os.path.basename('/%s.zip' % volume_id))
+    print(os.path.dirname(zf.filename) + '/%s.zip' % volume_id)
+    return send_from_directory(os.path.dirname(zf.filename), '/%s.zip' % volume_id)
 
 
 def zipdir(path, ziph):
