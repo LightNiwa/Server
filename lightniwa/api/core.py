@@ -385,16 +385,16 @@ def download_volume(volume_id):
             chapters_json = []
             for row in chapters:
                 chapter_json = {}
-                chapter_json['index'] = row.Chapter.index
-                chapter_json['book_id'] = row.Chapter.book_id
-                chapter_json['volume_id'] = row.Chapter.vol_id
-                chapter_json['chapter_id'] = row.Chapter.id
-                chapter_json['name'] = row.Chapter.name
+                chapter_json['index'] = row.index
+                chapter_json['book_id'] = row.book_id
+                chapter_json['volume_id'] = row.vol_id
+                chapter_json['chapter_id'] = row.id
+                chapter_json['name'] = row.name
                 chapters_json.append(chapter_json)
 
                 # lkcore.download_txt(row['chapter_id'], row['file_path'])
                 contents = []
-                f = open(app.config['PRIVATE_PATH'] + row.Chapter.file_path, 'r', encoding='utf-8')
+                f = open(app.config['PRIVATE_PATH'] + row.file_path, 'r', encoding='utf-8')
                 for line in f.readlines():
                     m = re.search(r"^/[^\s]*?\.(jpg|jpeg|png)", line)
                     is_img = '0'
@@ -415,7 +415,7 @@ def download_volume(volume_id):
                     content['is_img'] = is_img
                     content['content'] = line
                     contents.append(content)
-                zf.writestr('content/%s.json' % row.Chapter.id, json.dumps(contents, ensure_ascii=False))
+                zf.writestr('content/%s.json' % row.id, json.dumps(contents, ensure_ascii=False))
 
             zf.writestr('info/book.json', json.dumps(book_json, ensure_ascii=False))
             zf.writestr('info/volume.json', json.dumps(vol_json, ensure_ascii=False))
@@ -426,11 +426,11 @@ def download_volume(volume_id):
             zf.close()
             os.remove(zf.filename)
             raise e
-        except:
+        except OSError as e:
+            print(e)
             zf.close()
             os.remove(zf.filename)
-    print(os.path.dirname(zf.filename) + '/%s.zip' % volume_id)
-    return send_from_directory(os.path.dirname(zf.filename), '/%s.zip' % volume_id)
+    return send_from_directory(os.path.dirname(zf.filename), '%s.zip' % volume_id)
 
 
 def zipdir(path, ziph):
