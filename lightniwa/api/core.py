@@ -31,6 +31,7 @@ def version():
 
 @mod.route('/search')
 def search():
+    check_bot(request, 30)
     keyword = request.args.get('keyWord')
     if keyword.find('ln') == 0:
         keyword = keyword.replace('ln', '')
@@ -48,6 +49,7 @@ def search():
 
 @mod.route('/book/<int:book_id>')
 def book(book_id):
+    check_bot(request, 30)
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
     resp = {}
@@ -90,6 +92,7 @@ def book(book_id):
 
 @mod.route('/volume/<int:volume_id>', methods=['GET', 'POST'])
 def volume_get(volume_id):
+    check_bot(request, 30)
     v = Volume.query.filter_by(id=volume_id).first()
     resp = v.to_json()
     return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
@@ -267,6 +270,7 @@ def anime(month):
 
 @mod.route('/cover/image/<file_dir>/<file_name>.jpg')
 def cover(file_dir, file_name):
+    check_bot(request, 30)
     key = 'cover/image/%s/%s.jpg' % (file_dir, file_name)
     # if not os.path.isfile(app.config['PRIVATE_PATH'] + '/' + key):
         # lkcore.download_img('/' + key)
@@ -299,24 +303,7 @@ def cover(file_dir, file_name):
 # |--|--|md5('/cover/image/20120803/20120803215640_24363.jpg').jpg
 @mod.route('/download/volume/<int:volume_id>')
 def download_volume(volume_id):
-    ip = request.remote_addr
-    now = int(str(time.time()).split('.')[0])
-    count = Count.query.filter_by(ip=ip).first()
-    if count:
-        if count.last_time < now - 60 * 1:
-            sql = 'UPDATE download_ip SET frequency=1, total = total + 1, last_time=%s WHERE (ip=%s)'
-            count.frequency = 1
-        else:
-            if count.frequency >= 5:
-                raise FileNotFoundError
-            sql = 'UPDATE download_ip SET frequency=frequency+1, total = total + 1, last_time=%s WHERE (ip=%s)'
-            count.frequency += 1
-        count.total += 1
-        count.last_time = now
-    else:
-        count = Count(ip=ip, last_time=now, frequency=0, total=0)
-        sql = 'INSERT INTO download_ip (ip, last_time) VALUES (%s, %s)'
-        db_session.add(count)
+    check_bot(request, 30)
 
     sql = 'UPDATE volume SET download = download + 1 WHERE id = %s'
     Volume.query.filter_by(id=volume_id).update({"download": (Volume.download + 1)})
@@ -335,7 +322,7 @@ def download_volume(volume_id):
         q = Auth(app.config['QN_ACCESS_KEY'], app.config['QN_SECRET_KEY'])
         base_url = 'http://%s/%s' % (app.config['QN_BUCKET_DOMAIN'], path)
         private_url = q.private_download_url(base_url, expires=3600)
-        return send_from_directory(app.config['PRIVATE_PATH'] + '/zip/%s' % result.Book.id, '/%s.zip' % volume_id)
+        return send_from_directory(app.config['PRIVATE_PATH'] + '/zip/%s' % result.Book.id, '%s.zip' % volume_id)
     else:
         if not os.path.isdir(os.path.dirname(app.config['PRIVATE_PATH'] + path)):
             os.makedirs(os.path.dirname(app.config['PRIVATE_PATH'] + path))
@@ -445,3 +432,25 @@ def async_download_volume(volume_id):
     # if not v:
     #     if 0 < v.id < 10000:
             # threading.Thread(target=lkcore.download_volume(volume_id, 1)).start()
+
+
+def check_bot(req, limit):
+    ip = req.remote_addr
+    now = int(str(time.time()).split('.')[0])
+    count = Count.query.filter_by(ip=ip).first()
+    if count:
+        if count.last_time < now - 60 * 1:
+            sql = 'UPDATE download_ip SET frequency=1, total = total + 1, last_time=%s WHERE (ip=%s)'
+            count.frequency = 1
+        else:
+            if count.frequency >= limit:
+                raise FileNotFoundError
+            sql = 'UPDATE download_ip SET frequency=frequency+1, total = total + 1, last_time=%s WHERE (ip=%s)'
+            count.frequency += 1
+        count.total += 1
+        count.last_time = now
+    else:
+        count = Count(ip=ip, last_time=now, frequency=0, total=0)
+        sql = 'INSERT INTO download_ip (ip, last_time) VALUES (%s, %s)'
+        db_session.add(count)
+
