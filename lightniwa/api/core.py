@@ -5,46 +5,56 @@ import time
 import zipfile
 
 from bs4 import BeautifulSoup
-from flask import Blueprint, json, request, render_template, jsonify
+from flask import Blueprint, json, request
 from flask import redirect
 from flask import send_from_directory
-from flask import url_for
 from flask_login import login_required
 from qiniu import Auth
 from sqlalchemy import func
 from lightniwa import app
 
 from database import Article, User, db_session, engine, Book, Volume, Anime, Count, Chapter
+from lightniwa.helper import api_helper
 
 mod = Blueprint('api', __name__, url_prefix='/api/v1')
 
 
+def update_info():
+    resp = {}
+    resp['versionCode'] = 20
+    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.3_build20160402_beta.apk'
+    resp['message'] = '\n*API已经大改需要更新(以前写的太烂我已经看不懂了)\n1.修复了一些BUG\n2.优化部分UI'
+    return resp
+
+
 @mod.route('/checkUpdate')
 @mod.route('/checkupdate')
+def check_update():
+    return json.dumps(update_info(), ensure_ascii=False), 200, {'ContentType': 'application/json'}
+
+
+@mod.route('/version')
 def version():
-    resp = {}
-    resp['versionCode'] = 18
-    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.3_build20160402_beta.apk'
-    resp['message'] = '\n1.修复了一些BUG'
-    return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+    return api_helper.wrap_resp(update_info())
 
 
 @mod.route('/search')
 def search():
     check_bot(request, 30)
     keyword = request.args.get('keyWord')
+    if not keyword:
+        keyword = request.args.get('keyword')
     if keyword.find('ln') == 0:
         keyword = keyword.replace('ln', '')
-    result = db_session.query(Book, func.sum(Volume.download).label('download')).join(Volume, Volume.book_id == Book.id)\
-        .filter(func.concat(Volume.name, Book.name, Book.author, Book.illustrator).like('%' + keyword + '%'))\
+    result = db_session.query(Book, func.sum(Volume.download).label('download')).join(Volume, Volume.book_id == Book.id) \
+        .filter(func.concat(Volume.name, Book.name, Book.author, Book.illustrator).like('%' + keyword + '%')) \
         .group_by(Book.id).order_by(Volume.download.desc())
     resp = []
     for item in result:
         book = item.Book.to_json()
         book['download'] = int(item.download)
         resp.append(book)
-    print(resp)
-    return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+    return api_helper.wrap_resp(resp)
 
 
 @mod.route('/book/<int:book_id>')
@@ -52,19 +62,14 @@ def book(book_id):
     check_bot(request, 30)
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
-    resp = {}
-    if version_code > app.config['VERSION_CODE']:
+    if version_code >= app.config['VERSION_CODE']:
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp['book'] = b.to_json()
+        resp = b.to_json()
         resp['volumes'] = [v.to_json() for v in volumes]
+        return api_helper.wrap_resp(resp)
     else:
-        sql = 'SELECT b.id book_id, b.name book_name, b.author book_author, b.illustrator book_illustrator,' \
-              ' b.publisher book_publisher, b.cover book_cover' \
-              ' FROM book b WHERE b.id = %s'
-        sql = 'SELECT v.id vol_id, v.book_id book_id, v.name vol_name, v.description vol_description,' \
-              ' v.cover vol_cover, v.index vol_index' \
-              ' FROM volume v WHERE v.book_id = %s'
+        resp = {}
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
         resp['book'] = []
@@ -87,7 +92,7 @@ def book(book_id):
             item['vol_description'] = v.description
             resp['volumes'].append(item)
         # result = {'book': book, 'volumes': volumes}
-    return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+        return api_helper.wrap_resp(resp)
 
 
 @mod.route('/volume/<int:volume_id>', methods=['GET', 'POST'])
@@ -156,62 +161,65 @@ def chapter_patch(chapter_id):
     print('name:%s, desc:%s' % (name, desc))
     return json.dumps({}, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
-latest_update_cache = []
+
+latest_cache = []
 latest_update_time = 0
 
 
+@mod.route('/latest')
 @mod.route('/latestupdate')
-def latest_update():
-    global latest_update_cache
+def latest():
+    version_code = request.args.get('version_code')
+    version_code = int((version_code, 0)[not version_code])
+    global latest_cache
     global latest_update_time
-    if not latest_update_cache or latest_update_time + 3600 < time.time():
-        result = db_session.query(Book, Volume).join(Volume, Volume.book_id == Book.id)\
-            .order_by(Volume.id.desc()).limit(20)
+    if not latest_cache or latest_update_time + 3600 < time.time():
+        result = db_session.query(Book, Volume).join(Volume, Volume.book_id == Book.id) \
+            .order_by(Volume.id.desc()).limit(30)
         resp = []
-        for line in result:
-            item = {}
-            item['vol_id'] = line.Volume.id
-            item['vol_index'] = line.Volume.index
-            item['vol_name'] = line.Volume.name
-            item['vol_cover'] = line.Volume.cover
-            item['vol_description'] = line.Volume.description
-            item['book_id'] = line.Book.id
-            item['book_name'] = line.Book.name
-            item['book_author'] = line.Book.author
-            item['book_illustrator'] = line.Book.illustrator
-            resp.append(item)
-        latest_update_cache = resp
-        latest_update_time = time.time()
-    return json.dumps(latest_update_cache, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+        if version_code >= app.config['VERSION_CODE']:
+            for line in result:
+                item = line.Volume.to_json()
+                item['book'] = line.Book.to_json()
+                resp.append(item)
+            latest_cache = resp
+            latest_update_time = time.time()
+        else:
+            for line in result:
+                item = {}
+                item['vol_id'] = line.Volume.id
+                item['vol_index'] = line.Volume.index
+                item['vol_name'] = line.Volume.name
+                item['vol_cover'] = line.Volume.cover
+                item['vol_description'] = line.Volume.description
+                item['book_id'] = line.Book.id
+                item['book_name'] = line.Book.name
+                item['book_author'] = line.Book.author
+                item['book_illustrator'] = line.Book.illustrator
+                resp.append(item)
+            return api_helper.wrap_resp(resp)
+    return api_helper.wrap_resp(latest_cache)
 
 
 @mod.route('/popular')
 def popular():
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
-    resp = []
-    if version_code > app.config['VERSION_CODE']:
-        sql = 'SELECT b.id, b.name, b.author, b.illustrator, b.publisher, b.cover, SUM(v.download) total' \
-              ' FROM volume v' \
-              ' LEFT JOIN book b ON b.id = v.book_id' \
-              ' GROUP BY v.book_id ORDER BY total DESC limit 0,20'
+    if version_code >= app.config['VERSION_CODE']:
         result = db_session.query(Book, func.sum(Volume.download).label('total')) \
             .join(Volume, Volume.book_id == Book.id) \
             .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
+        resp = []
         for item in result:
             book = item.Book.to_json()
             book['total'] = int(item.total)
             resp.append(book)
-    elif version_code > 16:
-        sql = 'SELECT b.id book_id, b.name book_name, b.author book_author, b.illustrator book_illustrator,' \
-              ' b.publisher book_publisher, b.cover book_cover,' \
-              'SUM(v.download) total' \
-              ' FROM volume v' \
-              ' LEFT JOIN book b ON b.id = v.book_id' \
-              ' GROUP BY v.book_id ORDER BY total DESC limit 0,20'
+        return api_helper.wrap_resp(resp)
+    else:
         result = db_session.query(Book, func.sum(Volume.download).label('total')) \
             .join(Volume, Volume.book_id == Book.id) \
             .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
+        resp = []
         for line in result:
             item = {}
             item['book_id'] = line.Book.id
@@ -222,50 +230,29 @@ def popular():
             item['book_cover'] = line.Book.cover
             item['total'] = int(line.total)
             resp.append(item)
-    else:
-        sql = 'SELECT b.id book_id, b.name book_name, b.author, b.illustrator, b.publisher, b.cover book_cover' \
-              ', v.id volume_id, v.name volume_name, v.cover volume_cover, v.`index` volume_index' \
-              ', v.description volume_description, SUM(v.download) total' \
-              ' FROM volume v' \
-              ' LEFT JOIN book b ON b.id = v.book_id' \
-              ' GROUP BY book_id ORDER BY total DESC limit 0,20'
-        result = db_session.query(Book, Volume, func.sum(Volume.download).label('total')) \
-            .join(Volume, Volume.book_id == Book.id) \
-            .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
-        for line in result:
-            item = {}
-            item['book_id'] = line.Book.id
-            item['book_name'] = line.Book.name
-            item['author'] = line.Book.author
-            item['illustrator'] = line.Book.illustrator
-            item['publisher'] = line.Book.publisher
-            item['cover'] = line.Book.cover
-            item['volume_id'] = line.Volume.id
-            item['volume_name'] = line.Volume.name
-            item['volume_cover'] = line.Volume.cover
-            item['volume_index'] = line.Volume.index
-            item['volume_description'] = line.Volume.description
-            item['total'] = int(line.total)
-            resp.append(item)
-    return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+        return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
 
 @mod.route('/anime/<int:month>')
 def anime(month):
-    sql = ' SELECT b.id book_id, b.name book_name, b.author, b.illustrator, b.publisher, b.cover book_cover' \
-          ' FROM anime a LEFT JOIN book b ON b.id = a.book_id WHERE a.month = %s'
+    version_code = request.args.get('version_code')
+    version_code = int((version_code, 0)[not version_code])
     result = db_session.query(Book, Anime).join(Anime, Anime.book_id == Book.id).filter(Anime.month == month)
     resp = []
-    for line in result:
-        item = {}
-        item['book_id'] = line.Book.id
-        item['book_name'] = line.Book.name
-        item['book_cover'] = line.Book.cover
-        item['author'] = line.Book.author
-        item['illustrator'] = line.Book.illustrator
-        item['publisher'] = line.Book.publisher
-        resp.append(item)
-    return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+    if version_code >= app.config['VERSION_CODE']:
+        for line in result:
+            resp.append(line.Book.to_json())
+    else:
+        for line in result:
+            item = {}
+            item['book_id'] = line.Book.id
+            item['book_name'] = line.Book.name
+            item['book_cover'] = line.Book.cover
+            item['author'] = line.Book.author
+            item['illustrator'] = line.Book.illustrator
+            item['publisher'] = line.Book.publisher
+            resp.append(item)
+    return api_helper.wrap_resp(resp)
 
 
 @mod.route('/cover/image/<file_dir>/<file_name>.jpg')
@@ -273,8 +260,8 @@ def cover(file_dir, file_name):
     check_bot(request, 30)
     key = 'cover/image/%s/%s.jpg' % (file_dir, file_name)
     # if not os.path.isfile(app.config['PRIVATE_PATH'] + '/' + key):
-        # lkcore.download_img('/' + key)
-        # return 404
+    # lkcore.download_img('/' + key)
+    # return 404
     q = Auth(app.config['QN_ACCESS_KEY'], app.config['QN_SECRET_KEY'])
     base_url = 'http://%s/%s' % (app.config['QN_BUCKET_DOMAIN'], key)
     private_url = q.private_download_url(base_url, expires=3600)
@@ -304,17 +291,12 @@ def cover(file_dir, file_name):
 @mod.route('/download/volume/<int:volume_id>')
 def download_volume(volume_id):
     check_bot(request, 30)
-
-    sql = 'UPDATE volume SET download = download + 1 WHERE id = %s'
     Volume.query.filter_by(id=volume_id).update({"download": (Volume.download + 1)})
 
     db_session.commit()
 
-    sql = 'SELECT b.id book_id, b.name book_name, b.author, b.illustrator, b.publisher, b.cover book_cover ' \
-          ' , v.id volume_id, v.name volume_name, v.cover volume_cover, v.`index` volume_index, v.description volume_desc' \
-          ' FROM volume v LEFT JOIN book b on b.id = v.book_id ' \
-          ' WHERE v.id = %s'
-    result = db_session.query(Book, Volume).join(Volume, Volume.book_id == Book.id).filter(Volume.id == volume_id).first()
+    result = db_session.query(Book, Volume).join(Volume, Volume.book_id == Book.id).filter(
+        Volume.id == volume_id).first()
     if not result:
         return 404
     path = '/zip/%s/%s.zip' % (result.Book.id, volume_id)
@@ -365,9 +347,6 @@ def download_volume(volume_id):
             zf.write(app.config['PRIVATE_PATH'] + result.Volume.cover,
                      'img/%s.jpg' % hashlib.md5(result.Volume.cover.encode('utf-8')).hexdigest())
 
-            sql = ' SELECT c.id chapter_id, c.book_id book_id, c.vol_id volume_id, c.name chapter_name, c.file_path file_path' \
-                  ' , c.`index` chapter_index FROM chapter c' \
-                  ' WHERE c.vol_id = %s'
             chapters = Chapter.query.filter_by(vol_id=volume_id).all()
             chapters_json = []
             for row in chapters:
@@ -431,6 +410,8 @@ def async_download_volume(volume_id):
     v = Volume.query.filter_by(id=volume_id).first()
     # if not v:
     #     if 0 < v.id < 10000:
+    # threading.Thread(target=lkcore.download_volume(volume_id, 1)).start()
+
             # threading.Thread(target=lkcore.download_volume(volume_id, 1)).start()
 
 
