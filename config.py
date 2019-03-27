@@ -4,7 +4,7 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = False
 
-VERSION_CODE = 19
+VERSION_CODE = 21
 PRIVATE_PATH = '/git/LightReader-Web/private'
 API_URL = 'https://106.187.44.157'
 API_HEADER = {

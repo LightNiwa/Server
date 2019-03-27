@@ -21,8 +21,8 @@ mod = Blueprint('api', __name__, url_prefix='/api/v1')
 
 def update_info():
     resp = {}
-    resp['versionCode'] = 20
-    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.3_build20160402_beta.apk'
+    resp['versionCode'] = 21
+    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.4_build20190327.apk'
     resp['message'] = '\n*API已经大改需要更新(以前写的太烂我已经看不懂了)\n1.修复了一些BUG\n2.优化部分UI'
     return resp
 
@@ -421,17 +421,14 @@ def check_bot(req, limit):
     count = Count.query.filter_by(ip=ip).first()
     if count:
         if count.last_time < now - 60 * 1:
-            sql = 'UPDATE download_ip SET frequency=1, total = total + 1, last_time=%s WHERE (ip=%s)'
             count.frequency = 1
         else:
             if count.frequency >= limit:
                 raise FileNotFoundError
-            sql = 'UPDATE download_ip SET frequency=frequency+1, total = total + 1, last_time=%s WHERE (ip=%s)'
             count.frequency += 1
         count.total += 1
         count.last_time = now
     else:
         count = Count(ip=ip, last_time=now, frequency=0, total=0)
-        sql = 'INSERT INTO download_ip (ip, last_time) VALUES (%s, %s)'
         db_session.add(count)
 
