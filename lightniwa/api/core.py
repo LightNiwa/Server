@@ -193,7 +193,7 @@ def popular():
             book = item.Book.to_json()
             book['total'] = int(item.total)
             resp.append(book)
-            return api_helper.wrap_resp(resp)
+        return api_helper.wrap_resp(resp)
     else:
         for line in result:
             item = {}
@@ -205,7 +205,7 @@ def popular():
             item['book_cover'] = line.Book.cover
             item['total'] = int(line.total)
             resp.append(item)
-            return api_helper.dumps(resp)
+        return api_helper.dumps(resp)
 
 
 @mod.route('/anime/<int:month>')
