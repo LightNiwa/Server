@@ -30,7 +30,7 @@ def update_info():
 @mod.route('/checkUpdate')
 @mod.route('/checkupdate')
 def check_update():
-    return json.dumps(update_info(), ensure_ascii=False), 200, {'ContentType': 'application/json'}
+    return api_helper.dumps(update_info())
 
 
 @mod.route('/version')
@@ -65,21 +65,11 @@ def search():
 @mod.route('/book/<int:book_id>')
 def book(book_id):
     check_bot(request, 30)
-    version_code = request.args.get('version_code')
-    version_code = int((version_code, 0)[not version_code])
-    if version_code >= app.config['VERSION_CODE']:
-        b = Book.query.filter_by(id=book_id).first()
-        volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp = b.to_json()
-        resp['volumes'] = [v.to_json() for v in volumes]
-        return api_helper.wrap_resp(resp)
-    else:
-        b = Book.query.filter_by(id=book_id).first()
-        volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp = {}
-        resp['book'] = b.to_json()
-        resp['volumes'] = [v.to_json() for v in volumes]
-        return api_helper.dumps(resp)
+    b = Book.query.filter_by(id=book_id).first()
+    volumes = Volume.query.filter_by(book_id=book_id).all()
+    resp = b.to_json()
+    resp['volumes'] = [v.to_json() for v in volumes]
+    return api_helper.wrap_resp(resp)
 
 
 @mod.route('/volume/<int:volume_id>', methods=['GET', 'POST'])
@@ -190,8 +180,6 @@ def latest():
 
 @mod.route('/popular')
 def popular():
-    version_code = request.args.get('version_code')
-    version_code = int((version_code, 0)[not version_code])
     resp = []
     result = db_session.query(Book, func.sum(Volume.download).label('total')) \
         .join(Volume, Volume.book_id == Book.id) \
@@ -200,32 +188,16 @@ def popular():
         book = item.Book.to_json()
         book['total'] = int(item.total)
         resp.append(book)
-    if version_code >= app.config['VERSION_CODE']:
-        return api_helper.wrap_resp(resp)
-    else:
-        return api_helper.dumps(resp)
+    return api_helper.wrap_resp(resp)
 
 
 @mod.route('/anime/<int:month>')
+@mod.route('/animes/<int:month>')
 def anime(month):
-    version_code = request.args.get('version_code')
-    version_code = int((version_code, 0)[not version_code])
     result = db_session.query(Book, Anime).join(Anime, Anime.book_id == Book.id).filter(Anime.month == month)
     resp = []
-    if version_code >= app.config['VERSION_CODE']:
-        for line in result:
-            resp.append(line.Book.to_json())
-    else:
-        for line in result:
-            item = {}
-            item['book_id'] = line.Book.id
-            item['book_name'] = line.Book.name
-            item['book_cover'] = line.Book.cover
-            item['author'] = line.Book.author
-            item['illustrator'] = line.Book.illustrator
-            item['publisher'] = line.Book.publisher
-            resp.append(item)
-        return api_helper.dumps(resp)
+    for line in result:
+        resp.append(line.Book.to_json())
     return api_helper.wrap_resp(resp)
 
 
