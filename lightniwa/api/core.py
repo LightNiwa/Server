@@ -41,6 +41,8 @@ def version():
 @mod.route('/search')
 def search():
     check_bot(request, 30)
+    version_code = request.args.get('version_code')
+    version_code = int((version_code, 0)[not version_code])
     keyword = request.args.get('keyWord')
     if not keyword:
         keyword = request.args.get('keyword')
@@ -54,7 +56,10 @@ def search():
         book = item.Book.to_json()
         book['download'] = int(item.download)
         resp.append(book)
-    return api_helper.wrap_resp(resp)
+    if version_code >= app.config['VERSION_CODE']:
+        return api_helper.wrap_resp(resp)
+    else:
+        return api_helper.dumps(resp)
 
 
 @mod.route('/book/<int:book_id>')
@@ -69,30 +74,12 @@ def book(book_id):
         resp['volumes'] = [v.to_json() for v in volumes]
         return api_helper.wrap_resp(resp)
     else:
-        resp = {}
         b = Book.query.filter_by(id=book_id).first()
         volumes = Volume.query.filter_by(book_id=book_id).all()
-        resp['book'] = []
-        resp['volumes'] = []
-        book = {}
-        book['book_id'] = b.id
-        book['book_name'] = b.name
-        book['book_author'] = b.author
-        book['book_illustrator'] = b.illustrator
-        book['book_publisher'] = b.publisher
-        book['book_cover'] = b.cover
-        resp['book'].append(book)
-        for v in volumes:
-            item = {}
-            item['vol_id'] = v.id
-            item['book_id'] = v.book_id
-            item['vol_index'] = v.index
-            item['vol_name'] = v.name
-            item['vol_cover'] = v.cover
-            item['vol_description'] = v.description
-            resp['volumes'].append(item)
-        # result = {'book': book, 'volumes': volumes}
-        return api_helper.wrap_resp(resp)
+        resp = {}
+        resp['book'] = b.to_json()
+        resp['volumes'] = [v.to_json() for v in volumes]
+        return api_helper.dumps(resp)
 
 
 @mod.route('/volume/<int:volume_id>', methods=['GET', 'POST'])
@@ -197,7 +184,7 @@ def latest():
                 item['book_author'] = line.Book.author
                 item['book_illustrator'] = line.Book.illustrator
                 resp.append(item)
-            return api_helper.wrap_resp(resp)
+            return api_helper.dumps(resp)
     return api_helper.wrap_resp(latest_cache)
 
 
@@ -205,11 +192,11 @@ def latest():
 def popular():
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
+    resp = []
     if version_code >= app.config['VERSION_CODE']:
         result = db_session.query(Book, func.sum(Volume.download).label('total')) \
             .join(Volume, Volume.book_id == Book.id) \
             .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
-        resp = []
         for item in result:
             book = item.Book.to_json()
             book['total'] = int(item.total)
@@ -219,7 +206,6 @@ def popular():
         result = db_session.query(Book, func.sum(Volume.download).label('total')) \
             .join(Volume, Volume.book_id == Book.id) \
             .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
-        resp = []
         for line in result:
             item = {}
             item['book_id'] = line.Book.id
@@ -230,7 +216,7 @@ def popular():
             item['book_cover'] = line.Book.cover
             item['total'] = int(line.total)
             resp.append(item)
-        return json.dumps(resp, ensure_ascii=False), 200, {'ContentType': 'application/json'}
+        return api_helper.dumps(resp)
 
 
 @mod.route('/anime/<int:month>')
@@ -252,6 +238,7 @@ def anime(month):
             item['illustrator'] = line.Book.illustrator
             item['publisher'] = line.Book.publisher
             resp.append(item)
+        return api_helper.dumps(resp)
     return api_helper.wrap_resp(resp)
 
 
@@ -412,7 +399,7 @@ def async_download_volume(volume_id):
     #     if 0 < v.id < 10000:
     # threading.Thread(target=lkcore.download_volume(volume_id, 1)).start()
 
-            # threading.Thread(target=lkcore.download_volume(volume_id, 1)).start()
+    # threading.Thread(target=lkcore.download_volume(volume_id, 1)).start()
 
 
 def check_bot(req, limit):
@@ -431,4 +418,3 @@ def check_bot(req, limit):
     else:
         count = Count(ip=ip, last_time=now, frequency=0, total=0)
         db_session.add(count)
-
