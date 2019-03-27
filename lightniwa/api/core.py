@@ -30,7 +30,9 @@ def update_info():
 @mod.route('/checkUpdate')
 @mod.route('/checkupdate')
 def check_update():
-    return api_helper.dumps(update_info())
+    resp = update_info()
+    resp['versionCode'] = 1
+    return api_helper.dumps(resp)
 
 
 @mod.route('/version')
