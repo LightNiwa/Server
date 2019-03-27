@@ -193,29 +193,16 @@ def popular():
     version_code = request.args.get('version_code')
     version_code = int((version_code, 0)[not version_code])
     resp = []
+    result = db_session.query(Book, func.sum(Volume.download).label('total')) \
+        .join(Volume, Volume.book_id == Book.id) \
+        .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
+    for item in result:
+        book = item.Book.to_json()
+        book['total'] = int(item.total)
+        resp.append(book)
     if version_code >= app.config['VERSION_CODE']:
-        result = db_session.query(Book, func.sum(Volume.download).label('total')) \
-            .join(Volume, Volume.book_id == Book.id) \
-            .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
-        for item in result:
-            book = item.Book.to_json()
-            book['total'] = int(item.total)
-            resp.append(book)
         return api_helper.wrap_resp(resp)
     else:
-        result = db_session.query(Book, func.sum(Volume.download).label('total')) \
-            .join(Volume, Volume.book_id == Book.id) \
-            .group_by(Book.id).order_by(Volume.download.desc()).limit(20)
-        for line in result:
-            item = {}
-            item['book_id'] = line.Book.id
-            item['book_name'] = line.Book.name
-            item['book_author'] = line.Book.author
-            item['book_illustrator'] = line.Book.illustrator
-            item['book_publisher'] = line.Book.publisher
-            item['book_cover'] = line.Book.cover
-            item['total'] = int(line.total)
-            resp.append(item)
         return api_helper.dumps(resp)
 
 
