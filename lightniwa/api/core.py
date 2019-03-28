@@ -21,9 +21,9 @@ mod = Blueprint('api', __name__, url_prefix='/api/v1')
 
 def update_info():
     resp = {}
-    resp['versionCode'] = 21
-    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.4_build20190327.apk'
-    resp['message'] = '\n*API已经大改需要更新(以前写的太烂我已经看不懂了)\n1.修复了一些BUG\n2.优化部分UI'
+    resp['versionCode'] = 22
+    resp['url'] = 'https://ltype.me/static/LightNiwa_v0.8.5_build20190328.apk'
+    resp['message'] = '\n*API已经大改需要更新(以前写的太烂我已经看不懂了)\n1.修复新版无法下载和闪退的BUG\n2.优化部分UI'
     return resp
 
 
